@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.routers import mail
+from src.routers import mail, server
 
 app = FastAPI()
 
@@ -13,6 +13,7 @@ app.add_middleware(
 )
 
 app.include_router(mail.router)
+app.include_router(server.router)
 
 if __name__ == '__main__':
     import uvicorn
