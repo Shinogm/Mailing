@@ -8,4 +8,4 @@ router = APIRouter(
 
 router.post("/folder")(create_folder)
 router.post("/{folder_id}")(save_mail)
-router.post("/folder/{folder_id}/send")(send_mail)
+router.post("/{folder_id}/send")(send_mail) 
