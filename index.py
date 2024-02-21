@@ -1,19 +1,19 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from src.routers import mail
+from src.utils.fastapi import App
+from src.models.static_dir import StaticDir
 
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(mail.router)
+def main():
+    app = App(
+        routers=[
+            mail.router
+    ],
+    static_dirs=[
+        StaticDir(name='public', path='public')
+    ]
+    ).get_app()
+    return app
 
 if __name__ == '__main__':
+    app = main()
     import uvicorn
-    uvicorn.run(app, host='0.0.0.0', port=3000)
+    uvicorn.run(app, host='0.0.0.0', port=3001)
