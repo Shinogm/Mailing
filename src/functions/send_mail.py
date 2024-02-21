@@ -4,7 +4,7 @@ from smtplib import SMTP
 from email.mime.text import MIMEText
 from typing import Annotated
 
-def send_mail(mail_account_id: int, folder_id: int, annotated_html_body: Annotated[str, Body(...)]):
+def send_mail(mail_account_id: int, folder_id: int, html: Annotated[str, Body(..., embed=True)]):
     mail_info = supabase.table('mail_accounts').select('*, mail_server(*)').eq('id', mail_account_id).single().execute().model_dump()
 
     url = mail_info['mail_server']['url']
@@ -20,7 +20,7 @@ def send_mail(mail_account_id: int, folder_id: int, annotated_html_body: Annotat
 
     mails = supabase.table('mails_saved').select('email').eq('folder', folder_id).execute().model_dump()
 
-    message = MIMEText(annotated_html_body, 'html')
+    message = MIMEText(html, 'html')
 
     for mail in mails:
         server.sendmail(email, mail, message.as_string())

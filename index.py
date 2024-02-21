@@ -1,11 +1,12 @@
-from src.routers import mail
+from src.routers import mail, server
 from src.utils.fastapi import App
 from src.models.static_dir import StaticDir
 
 def main():
     app = App(
         routers=[
-            mail.router
+            mail.router,
+            server.router
     ],
     static_dirs=[
         StaticDir(name='public', path='public')
