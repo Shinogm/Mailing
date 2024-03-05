@@ -1,29 +1,43 @@
-from src.services.supabase import supabase
 from fastapi import Body
-from smtplib import SMTP
+from pydantic import BaseModel
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from smtplib import SMTP
 from typing import Annotated
 
-def send_mail(mail_account_id: int, folder_id: int, html: Annotated[str, Body(..., embed=True)]):
-    mail_info = supabase.table('mail_accounts').select('*, mail_server(*)').eq('id', mail_account_id).single().execute().model_dump()
 
-    url = mail_info['mail_server']['url']
-    port = mail_info['mail_server']['port']
-    email = mail_info['email'] or ''
-    password = mail_info['password']
+class MailProperties(BaseModel):
+    url: str
+    port: str
+    email: str
+    password: str
 
-    server = SMTP(url, port)
+
+
+def send_mail(title: str, mail_properties: MailProperties, mails: list[str], html: Annotated[str, Body(..., embed=True)]):
+
+    url = mail_properties.url
+    port = mail_properties.port
+    email = mail_properties.email
+    password = mail_properties.password
+
+    server = SMTP(url, int(port))
 
     server.starttls()
 
     server.login(email, password)
 
-    mails = supabase.table('mails_saved').select('email').eq('folder', folder_id).execute().model_dump()
-
-    message = MIMEText(html, 'html')
-
     for mail in mails:
-        server.sendmail(email, mail, message.as_string())
+        msg = MIMEMultipart()
+        msg['Subject'] = title
+        msg['From'] = email
+        msg['To'] = mail
+
+
+        # Agregar el contenido HTML al mensaje
+        msg.attach(MIMEText(html, 'html'))
+
+        server.send_message(msg)
 
     server.quit()
 
